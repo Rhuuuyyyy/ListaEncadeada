@@ -47,6 +47,7 @@ public class ListaEncadeada {
     if (Lista.getPrimeiro() == null) {
         DefinirValoresListaNova(p);
         } else {
+            Lista.getPrimeiro().setAnterior(p);
             p.setProximo(Lista.getPrimeiro());
             Lista.setPrimeiro(p);
         }
@@ -101,6 +102,39 @@ public class ListaEncadeada {
             quantidade--;
             return temp.getInformacao();
         }
+    }
+
+    public Integer removerValor(Integer valor) {
+        if (Lista.getPrimeiro() == null) {
+            System.out.println("A lista está vazia. Não é possível remover elementos.");
+            return null;
+        }
+
+        Node atual = Lista.getPrimeiro();
+        Node anterior = null;
+        while (atual != null && !atual.getInformacao().equals(valor)) {
+            anterior = atual;
+            atual = atual.getProximo();
+        }
+
+        if (atual == null) {
+            System.out.println("Valor não encontrado na lista.");
+            return null;
+        }
+
+        if (anterior == null) {
+            Lista.setPrimeiro(atual.getProximo());
+            if (Lista.getPrimeiro() == null) {
+                Lista.setUltimo(null);
+            }
+        } else {
+            anterior.setProximo(atual.getProximo());
+            if (atual == Lista.getUltimo()) {
+                Lista.setUltimo(anterior);
+            }
+        }
+        quantidade--;
+        return atual.getInformacao();
     }
 
     public void imprimir() {
