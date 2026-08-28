@@ -10,10 +10,10 @@ public class Node {
     }
 
     Integer getInformacao() { return informacao; }
-    Node getProximo() { return proximo; }
     void setProximo(Node proximo) { this.proximo = proximo; }
-    Node getAnterior() { return anterior; }
     void setAnterior(Node anterior) { this.anterior = anterior; }
+    Node getProximo() { return proximo; }
+    Node getAnterior() { return anterior; }
 }
 
 public class Header {
@@ -25,17 +25,17 @@ public class Header {
         ultimo = null;
     }
 
-    public Node getPrimeiro() { return primeiro; }
     void setPrimeiro(Node primeiro) { this.primeiro = primeiro; }
-    public Node getUltimo() { return ultimo; }
     void setUltimo(Node ultimo) { this.ultimo = ultimo; }
+    Node getPrimeiro() { return primeiro; }
+    Node getUltimo() { return ultimo; }
 }
 
-public class ListaDuplamenteEncadeada {
+public class ListaCircularDuplamenteEncadeada {
     private Header Lista;
     private int quantidade;
 
-    public ListaDuplamenteEncadeada() {
+    public ListaCircularDuplamenteEncadeada() {
         Lista = new Header();
         quantidade = 0;
     }
@@ -43,6 +43,9 @@ public class ListaDuplamenteEncadeada {
     public void DefinirValoresListaNova(Node p) {
         Lista.setPrimeiro(p);
         Lista.setUltimo(p);
+        // com 1 único elemento, ele é ao mesmo tempo seu próprio próximo e seu próprio anterior
+        p.setProximo(p);
+        p.setAnterior(p);
     }
 
     public void AdicionarInicio(Integer valor) {
@@ -50,8 +53,10 @@ public class ListaDuplamenteEncadeada {
         if (Lista.getPrimeiro() == null) {
             DefinirValoresListaNova(p);
         } else {
-            p.setProximo(Lista.getPrimeiro());
             Lista.getPrimeiro().setAnterior(p);
+            Lista.getUltimo().setProximo(p);
+            p.setProximo(Lista.getPrimeiro());
+            p.setAnterior(Lista.getUltimo());
             Lista.setPrimeiro(p);
         }
         quantidade++;
@@ -63,71 +68,89 @@ public class ListaDuplamenteEncadeada {
             DefinirValoresListaNova(p);
         } else {
             p.setAnterior(Lista.getUltimo());
+            p.setProximo(Lista.getPrimeiro());
             Lista.getUltimo().setProximo(p);
+            Lista.getPrimeiro().setAnterior(p);
             Lista.setUltimo(p);
         }
         quantidade++;
     }
 
     public void RemoverInicio() {
-        Node p = Lista.getPrimeiro();
         if (Lista.getPrimeiro() == null) {
             System.out.println("Lista vazia");
-        } else if(quantidade == 1) {
+        } else if (quantidade == 1) {
+            Node p = Lista.getPrimeiro();
             p.setProximo(null);
             p.setAnterior(null);
             Lista.setPrimeiro(null);
             Lista.setUltimo(null);
-            quantidade--; 
+            quantidade--;
         } else {
-            Lista.setPrimeiro(Lista.getPrimeiro().getProximo());
-            Lista.getPrimeiro().setAnterior(null);
-            p.setAnterior(null);
+            Node p = Lista.getPrimeiro();
+            Node novoPrimeiro = p.getProximo();
+            novoPrimeiro.setAnterior(Lista.getUltimo());
+            Lista.getUltimo().setProximo(novoPrimeiro);
+            Lista.setPrimeiro(novoPrimeiro);
             p.setProximo(null);
+            p.setAnterior(null);
             quantidade--;
         }
     }
 
     public void RemoverFinal() {
-        Node p = Lista.getUltimo();
         if (Lista.getUltimo() == null) {
             System.out.println("Lista vazia");
-        } else if(quantidade == 1) {
+        } else if (quantidade == 1) {
+            Node p = Lista.getUltimo();
+            p.setProximo(null);
+            p.setAnterior(null);
             Lista.setPrimeiro(null);
             Lista.setUltimo(null);
-            p.setProximo(null);
-            p.setAnterior(null);
             quantidade--;
         } else {
-            Lista.setUltimo(Lista.getUltimo().getAnterior());
-            Lista.getUltimo().setProximo(null);
+            Node p = Lista.getUltimo();
+            Node novoUltimo = p.getAnterior();
+            novoUltimo.setProximo(Lista.getPrimeiro());
+            Lista.getPrimeiro().setAnterior(novoUltimo);
+            Lista.setUltimo(novoUltimo);
             p.setProximo(null);
             p.setAnterior(null);
             quantidade--;
-            }
+        }
     }
+
     public void RemoverValor(Integer valor) {
         if (Lista.getPrimeiro() == null) {
             System.out.println("A lista está vazia");
         } else {
-            Node Atual = Lista.getPrimeiro();
-            Node Anterior = null;
-            while (Atual != null && !Atual.getInformacao().equals(valor)) {
-                Anterior = Atual;
-                Atual = Atual.getProximo();
-            }
-            if (Atual != null) {
-                if (Anterior == null) {
-                    RemoverInicio();
-                    } else if ( Atual.getProximo() == null){
-                        RemoverFinal();
-                        } else { 
-                            Atual.getProximo().setAnterior(Anterior);
-                            Anterior.setProximo(Atual.getProximo());
-                            Atual.setProximo(null);
-                            Atual.setAnterior(null);
-                            quantidade--;                
+            Node atual = Lista.getPrimeiro();
+            int contador = 0;
+            boolean encontrado = false;
+            while (contador < quantidade && !encontrado) {
+                if (atual.getInformacao().equals(valor)) {
+                    encontrado = true;
+                } else {
+                    atual = atual.getProximo();
+                    contador++;
                 }
+            }
+            if (encontrado) {
+                if (atual == Lista.getPrimeiro()) {
+                    RemoverInicio();
+                } else if (atual == Lista.getUltimo()) {
+                    RemoverFinal();
+                } else {
+                    Node anterior = atual.getAnterior();
+                    Node proximo = atual.getProximo();
+                    anterior.setProximo(proximo);
+                    proximo.setAnterior(anterior);
+                    atual.setProximo(null);
+                    atual.setAnterior(null);
+                    quantidade--;
+                }
+            } else {
+                System.out.println("Valor não encontrado na lista");
             }
         }
     }
@@ -137,10 +160,16 @@ public class ListaDuplamenteEncadeada {
             System.out.println("Lista vazia");
         } else {
             Node atual = Lista.getPrimeiro();
-            while (atual != null) {
-                System.out.print(atual.getInformacao() + ", ");
+            int contador = 0;
+            while (contador < quantidade) {
+                System.out.print(atual.getInformacao());
+                contador++;
+                if (contador < quantidade) {
+                    System.out.print(", ");
+                }
                 atual = atual.getProximo();
             }
+            System.out.println();
         }
     }
 

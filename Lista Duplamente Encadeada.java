@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Node {
     Integer informacao;
     Node proximo;
@@ -146,5 +148,87 @@ public class ListaDuplamenteEncadeada {
 
     public void Quantidade() {
         System.out.println("Quantidade de elementos na lista: " + quantidade);
+    }
+
+    public Node getPrimeiro() {
+        return Lista.getPrimeiro();
+    }
+}
+
+public class NoArvore {
+    private Integer informacao;
+    private NoArvore esquerda;
+    private NoArvore direita;
+
+    public NoArvore(Integer valor) {
+        this.informacao = valor;
+        this.esquerda = null;
+        this.direita = null;
+    }
+
+    Integer getInformacao() { return informacao; }
+    NoArvore getEsquerda() { return esquerda; }
+    void setEsquerda(NoArvore esquerda) { this.esquerda = esquerda; }
+    NoArvore getDireita() { return direita; }
+    void setDireita(NoArvore direita) { this.direita = direita; }
+}
+
+public class ArvoreBinaria {
+    private NoArvore raiz;
+
+    public ArvoreBinaria(ListaDuplamenteEncadeada lista) {
+        raiz = null;
+        Node atual = lista.getPrimeiro();
+        while (atual != null) {
+            Inserir(atual.getInformacao());
+            atual = atual.getProximo();
+        }
+    }
+
+    public void Inserir(Integer valor) {
+        raiz = InserirRecursivo(raiz, valor);
+    }
+
+    private NoArvore InserirRecursivo(NoArvore no, Integer valor) {
+        if (no == null) {
+            return new NoArvore(valor);
+        }
+        if (valor < no.getInformacao()) {
+            no.setEsquerda(InserirRecursivo(no.getEsquerda(), valor));
+        } else {
+            no.setDireita(InserirRecursivo(no.getDireita(), valor));
+        }
+        return no;
+    }
+
+    public void Imprimir() {
+        if (raiz == null) {
+            System.out.println("Árvore vazia");
+        } else {
+            ImprimirRecursivo(raiz, 0);
+        }
+    }
+
+    private void ImprimirRecursivo(NoArvore no, int nivel) {
+        if (no != null) {
+            ImprimirRecursivo(no.getDireita(), nivel + 1);
+            for (int i = 0; i < nivel; i++) {
+                System.out.print("        ");
+            }
+            System.out.println(no.getInformacao());
+            ImprimirRecursivo(no.getEsquerda(), nivel + 1);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Scanner.nextLine();
+        ListaDuplamenteEncadeada lista = new ListaDuplamenteEncadeada();
+
+
+        ArvoreBinaria arvore = new ArvoreBinaria(lista);
+        arvore.Imprimir();
     }
 }
