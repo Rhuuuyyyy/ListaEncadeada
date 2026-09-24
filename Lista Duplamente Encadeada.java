@@ -226,7 +226,8 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         Scanner.nextLine();
         ListaDuplamenteEncadeada lista = new ListaDuplamenteEncadeada();
-
+        while(number = )
+            Node number = scanner.nextLine();
 
         ArvoreBinaria arvore = new ArvoreBinaria(lista);
         arvore.Imprimir();
